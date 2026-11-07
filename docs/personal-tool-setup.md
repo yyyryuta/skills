@@ -89,3 +89,32 @@ MCPサーバを新規実装する各プロジェクトのSDKや、`mcp-builder`�
 7. 起動・製品識別・実検索、原本のコピーによるCAD読込・変換を確認して記録する。常駐化・MCP設定・Viewerへの統合は、その範囲を決めてから行う。
 
 自動修正・自己改善ループ、T3 Code・Herder・Orca・OpenShell・NemoClaw・GraphRAG・Dreamingの導入は今回の対象外。研究論文は設計知見として保存し、実行ソフトウェアとして導入しない。
+
+## 7. セキュリティ用Skillsの追加
+
+2026-11-07、利用者の指定で次の2つを追加した。上記5つの固定コミットの記録は維持する。
+
+| Skill | 配置先 | 出所・固定版 |
+|---|---|---|
+| `security-audit` | `~/.codex/skills/security-audit/` | [個人fork](https://github.com/yyyryuta/security-audit-skill)、`c1c8a8c1471069fb0e188eeaff69b8e8db6564a8`、`skills/security-audit` |
+| `zero-wire` | `~/.codex/skills/zero-wire/` | [個人作成Skill](https://github.com/yyyryuta/skills/blob/514d4a701c2732e58e75cb3e3b13ec4611147ecf/skills/zero-wire/SKILL.md)、`514d4a701c2732e58e75cb3e3b13ec4611147ecf`、`skills/zero-wire` |
+
+公式監査Skillの元は[cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill)。付属資料・スキーマ・検証スクリプトを一式導入し、同じコミットのMITライセンスをローカルの`security-audit/LICENSE`にも保存した。元の指示内容は変更していない。
+
+[Zero Wire](https://radar.cloudflare.com/security/zero-wire)は公開脆弱性の情報源であり、インストールする実行ソフトではない。個人作成Skillは公式記事・ベンダー勧告と対象環境を読み取りで照合する手順で、Cloudflare公式Skillではない。API・定期取得・常駐監視は設定していない。
+
+両方とも`quick_validate.py`の構造検査に合格した。コード監査、脆弱性検証、CI接続、監査用隔離環境の構築・検証は未実施。通常のレビューと完全監査を区別し、完全監査で対象コードを実行する場合は公式Skillが求める隔離条件を満たす。導入したSkillは次のターンから利用可能。
+
+Ubuntuでは既存配置を確認したうえで、Codexのskill-installerに次を指定する。
+
+```text
+--repo yyyryuta/security-audit-skill
+--ref c1c8a8c1471069fb0e188eeaff69b8e8db6564a8
+--path skills/security-audit
+
+--repo yyyryuta/skills
+--ref 514d4a701c2732e58e75cb3e3b13ec4611147ecf
+--path skills/zero-wire
+```
+
+それぞれ別のインストールとして実行する。公式監査SkillのMITライセンスは同じコミットのリポジトリ直下から取得し、併せて保持する。Ubuntuへの配置と、監査時の実行環境が要件を満たすことの確認は別々に記録する。GitHubでの運用方針はViewer側の`docs/operations/security-review.md`に保存した。
